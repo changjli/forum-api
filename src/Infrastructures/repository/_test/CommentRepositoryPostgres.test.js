@@ -46,6 +46,10 @@ describe("CommentRepositoryPostgres", () => {
       expect(comment.id).toEqual("comment-abc");
       expect(comment.content).toEqual("isi komentar");
       expect(comment.owner).toEqual("user-123");
+
+      const rows = await CommentsTableTestHelper.findCommentById("comment-abc");
+      expect(rows).toHaveLength(1);
+      expect(rows[0].content).toBe("isi komentar");
     });
   });
 
@@ -102,10 +106,7 @@ describe("CommentRepositoryPostgres", () => {
         isDelete: false,
       });
       await repo().softDeleteComment("comment-4");
-      const { rows } = await pool.query(
-        "SELECT is_delete FROM comments WHERE id = $1",
-        ["comment-4"]
-      );
+      const rows = await CommentsTableTestHelper.findCommentById("comment-4");
       expect(rows[0].is_delete).toBe(true);
     });
   });

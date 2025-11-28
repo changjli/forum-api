@@ -96,6 +96,17 @@ describe("GetThreadDetailUseCase", () => {
       },
     ];
 
+    const expectedThread = {
+      thread: {
+        id: threadId,
+        title: "Judul",
+        body: "Isi",
+        date: "2025-01-01T10:00:00.000Z",
+        username: "nicholas",
+        comments: expectedComments,
+      },
+    };
+
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
     const mockReplyRepository = new ReplyRepository();
@@ -120,16 +131,7 @@ describe("GetThreadDetailUseCase", () => {
     const result = await useCase.execute(threadId);
 
     // Assert
-    expect(result).toStrictEqual({
-      thread: {
-        id: mockThread.id,
-        title: mockThread.title,
-        body: mockThread.body,
-        date: mockThread.date,
-        username: mockThread.username,
-        comments: expectedComments,
-      },
-    });
+    expect(result).toStrictEqual(expectedThread);
     expect(mockThreadRepository.findThreadById).toBeCalledWith(threadId);
     expect(mockCommentRepository.findCommentsByThreadId).toBeCalledWith(
       threadId

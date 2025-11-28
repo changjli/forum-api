@@ -20,6 +20,12 @@ describe("AddReplyUseCase", () => {
       owner: payload.owner,
     });
 
+    const expectedAddedReply = new AddedReply({
+      id: "reply-555",
+      content: payload.content,
+      owner: payload.owner,
+    });
+
     const mockReplyRepo = new ReplyRepository();
     const mockCommentRepo = new CommentRepository();
     const mockThreadRepo = new ThreadRepository();
@@ -36,7 +42,7 @@ describe("AddReplyUseCase", () => {
 
     const result = await useCase.execute(payload);
 
-    expect(result).toStrictEqual(mockAddedReply);
+    expect(result).toStrictEqual(expectedAddedReply);
     expect(mockCommentRepo.verifyCommentExistence).toBeCalledWith(
       payload.commentId
     );

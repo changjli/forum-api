@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 const pool = require("../src/Infrastructures/database/postgres/pool");
 
 const CommentsTableTestHelper = {
@@ -14,6 +15,15 @@ const CommentsTableTestHelper = {
       values: [id, threadId, content, owner, date, isDelete],
     };
     await pool.query(query);
+  },
+
+  async findCommentById(id) {
+    const query = {
+      text: "SELECT id, thread_id, content, owner, date, is_delete FROM comments WHERE id = $1",
+      values: [id],
+    };
+    const result = await pool.query(query);
+    return result.rows;
   },
 
   async cleanTable() {

@@ -102,10 +102,7 @@ describe("ReplyRepositoryPostgres", () => {
     it("marks is_delete true", async () => {
       await RepliesTableTestHelper.addReply({ id: "reply-4", isDelete: false });
       await repo().softDeleteReply("reply-4");
-      const { rows } = await pool.query(
-        "SELECT is_delete FROM replies WHERE id = $1",
-        ["reply-4"]
-      );
+      const rows = await RepliesTableTestHelper.findReplyById("reply-4");
       expect(rows[0].is_delete).toBe(true);
     });
   });

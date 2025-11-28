@@ -36,9 +36,9 @@ describe("ThreadRepositoryPostgres", () => {
       expect(added.title).toBe("Judul");
       expect(added.owner).toBe("user-abc");
 
-      const row = await repo.findThreadById("thread-xyz");
-      expect(row).toBeDefined();
-      expect(row.title).toBe("Judul");
+      const rows = await ThreadsTableTestHelper.findThreadById("thread-xyz");
+      expect(rows).toHaveLength(1);
+      expect(rows[0].title).toBe("Judul");
     });
   });
 
