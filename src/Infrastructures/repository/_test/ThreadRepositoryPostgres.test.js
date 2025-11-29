@@ -60,7 +60,7 @@ describe("ThreadRepositoryPostgres", () => {
       const repo = new ThreadRepositoryPostgres(pool, fakeId);
       await expect(
         repo.checkThreadExistence("thread-xyz")
-      ).resolves.not.toThrow();
+      ).resolves.not.toThrow(NotFoundError);
     });
   });
 

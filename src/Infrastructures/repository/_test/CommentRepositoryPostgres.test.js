@@ -60,14 +60,14 @@ describe("CommentRepositoryPostgres", () => {
       );
     });
 
-    it("resolves when comment exists", async () => {
+    it("does not throw error when comment exists", async () => {
       await CommentsTableTestHelper.addComment({
         id: "comment-1",
         threadId: "thread-123",
       });
       await expect(
         repo().verifyCommentExistence("comment-1")
-      ).resolves.toBeUndefined();
+      ).resolves.not.toThrow(NotFoundError);
     });
   });
 
@@ -88,14 +88,14 @@ describe("CommentRepositoryPostgres", () => {
       ).rejects.toThrow(AuthorizationError);
     });
 
-    it("resolves when owner matches", async () => {
+    it("does not throw error when owner matches", async () => {
       await CommentsTableTestHelper.addComment({
         id: "comment-3",
         owner: "user-123",
       });
       await expect(
         repo().verifyCommentOwner("comment-3", "user-123")
-      ).resolves.toBeUndefined();
+      ).resolves.not.toThrow(NotFoundError);
     });
   });
 
@@ -129,9 +129,16 @@ describe("CommentRepositoryPostgres", () => {
       const rows = await repo().findCommentsByThreadId("thread-123");
       expect(rows).toHaveLength(2);
       expect(rows[0].id).toBe("comment-b");
+      expect(rows[0].username).toBe("dicoding");
+      expect(rows[0].date).toStrictEqual(d1);
+      expect(rows[0].content).toBe("one");
+      expect(rows[0].is_delete).toBe(false);
+
       expect(rows[1].id).toBe("comment-a");
-      expect(rows[0]).toHaveProperty("username");
-      expect(rows[0]).toHaveProperty("is_delete");
+      expect(rows[1].username).toBe("dicoding");
+      expect(rows[1].date).toStrictEqual(d2);
+      expect(rows[1].content).toBe("two");
+      expect(rows[1].is_delete).toBe(false);
     });
 
     it("returns empty array when no comments", async () => {
