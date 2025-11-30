@@ -126,9 +126,22 @@ describe("ReplyRepositoryPostgres", () => {
       const rows = await repo().findRepliesByCommentIds(["comment-123"]);
       expect(rows).toHaveLength(2);
       expect(rows[0].id).toBe("reply-b");
+      expect(rows[0].comment_id).toBe("comment-123");
+      expect(rows[0].username).toBe("dicoding");
+      expect(rows[0].date).toStrictEqual(d1);
+      expect(rows[0].content).toBe("earlier");
+      expect(rows[0].is_delete).toBe(false);
+
       expect(rows[1].id).toBe("reply-a");
-      expect(rows[0]).toHaveProperty("username");
-      expect(rows[0]).toHaveProperty("is_delete");
+      expect(rows[1].comment_id).toBe("comment-123");
+      expect(rows[1].username).toBe("dicoding");
+      expect(rows[1].date).toStrictEqual(d2);
+      expect(rows[1].content).toBe("balasan");
+      expect(rows[1].is_delete).toBe(false);
+
+      expect(new Date(rows[0].date).getTime()).toBeLessThan(
+        new Date(rows[1].date).getTime()
+      );
     });
   });
 });

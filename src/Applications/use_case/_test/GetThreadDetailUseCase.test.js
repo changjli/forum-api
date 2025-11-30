@@ -141,4 +141,80 @@ describe("GetThreadDetailUseCase", () => {
       "comment-2",
     ]);
   });
+
+  it("sorts comments by date ascending and replaces deleted comment content", async () => {
+    // Arrange
+    const threadId = "thread-xyz";
+    const mockThread = {
+      id: threadId,
+      title: "Judul",
+      body: "Isi",
+      date: "2025-02-01T00:00:00.000Z",
+      username: "tester",
+    };
+
+    // Intentionally unsorted by date (middle, latest, earliest)
+    const mockComments = [
+      {
+        id: "comment-b",
+        username: "user2",
+        date: "2025-02-01T10:05:00.000Z",
+        content: "B konten",
+        is_delete: false,
+      },
+      {
+        id: "comment-c",
+        username: "user3",
+        date: "2025-02-01T10:06:00.000Z",
+        content: "C konten (akan dihapus)",
+        is_delete: true,
+      },
+      {
+        id: "comment-a",
+        username: "user1",
+        date: "2025-02-01T10:04:00.000Z",
+        content: "A konten",
+        is_delete: false,
+      },
+    ];
+
+    const mockReplies = [];
+
+    const mockThreadRepository = new ThreadRepository();
+    const mockCommentRepository = new CommentRepository();
+    const mockReplyRepository = new ReplyRepository();
+
+    mockThreadRepository.findThreadById = jest
+      .fn()
+      .mockResolvedValue(mockThread);
+    mockCommentRepository.findCommentsByThreadId = jest
+      .fn()
+      .mockResolvedValue(mockComments);
+    mockReplyRepository.findRepliesByCommentIds = jest
+      .fn()
+      .mockResolvedValue(mockReplies);
+
+    const useCase = new GetThreadDetailUseCase({
+      threadRepository: mockThreadRepository,
+      commentRepository: mockCommentRepository,
+      replyRepository: mockReplyRepository,
+    });
+
+    // Act
+    const result = await useCase.execute(threadId);
+
+    // Assert sorting (expected order: a, b, c by date)
+    const ids = result.thread.comments.map((c) => c.id);
+    expect(ids).toEqual(["comment-a", "comment-b", "comment-c"]);
+    // Assert deletion replacement on last comment
+    const deletedComment = result.thread.comments.find(
+      (c) => c.id === "comment-c"
+    );
+    expect(deletedComment.content).toBe("**komentar telah dihapus**");
+    // Assert non-deleted untouched
+    expect(result.thread.comments[0].content).toBe("A konten");
+    expect(result.thread.comments[1].content).toBe("B konten");
+    // Assert replies empty
+    expect(result.thread.comments[0].replies).toEqual([]);
+  });
 });

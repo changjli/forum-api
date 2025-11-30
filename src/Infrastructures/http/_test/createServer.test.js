@@ -55,4 +55,38 @@ describe("HTTP server", () => {
     expect(json.error).toEqual("Unauthorized");
     expect(json.message).toMatch(/Missing authentication|Unauthorized/);
   });
+
+  it("should authenticate with valid JWT and map credentials via validate", async () => {
+    // Arrange
+    process.env.ACCESS_TOKEN_KEY = "test-secret-key";
+    const Jwt = require("@hapi/jwt");
+    const payload = { id: "user-xyz", username: "neo" };
+    const token = Jwt.token.generate(payload, process.env.ACCESS_TOKEN_KEY);
+    // Fake container so handler succeeds without real use cases
+    const fakeContainer = {
+      getInstance: () => ({
+        execute: async (data) => ({
+          id: "thread-abc",
+          title: data.title,
+          body: data.body,
+          owner: data.owner,
+        }),
+      }),
+    };
+    const server = await createServer(fakeContainer);
+
+    // Act
+    const response = await server.inject({
+      method: "POST",
+      url: "/threads",
+      payload: { title: "Judul", body: "Isi" },
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    // Assert
+    expect(response.statusCode).toBe(201); // authenticated & handler ran
+    const json = JSON.parse(response.payload);
+    expect(json.status).toBe("success");
+    expect(json.data.addedThread.owner).toBe("user-xyz"); // owner taken from credentials
+  });
 });
