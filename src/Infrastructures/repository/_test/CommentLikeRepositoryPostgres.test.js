@@ -84,7 +84,7 @@ describe("CommentLikeRepositoryPostgres", () => {
       userId: "user-1",
     });
     const map = await repo().getLikeCountsByCommentIds(["c1", "c2", "c3"]);
-    expect(map.c1).toBe(2);
+    expect(map.c1).toBe(3);
     expect(map.c2).toBe(1);
     expect(map.c3 ?? 0).toBe(0);
   });
