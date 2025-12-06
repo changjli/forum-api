@@ -63,15 +63,25 @@ describe("HTTP server", () => {
     const payload = { id: "user-xyz", username: "neo" };
     const token = Jwt.token.generate(payload, process.env.ACCESS_TOKEN_KEY);
     // Fake container so handler succeeds without real use cases
+    const AddThreadUseCase = require("../../../Applications/use_case/AddThreadUseCase");
+    const ToggleCommentLikeUseCase = require("../../../Applications/use_case/ToggleCommentLikeUseCase");
     const fakeContainer = {
-      getInstance: () => ({
-        execute: async (data) => ({
-          id: "thread-abc",
-          title: data.title,
-          body: data.body,
-          owner: data.owner,
-        }),
-      }),
+      getInstance: (key) => {
+        if (key === AddThreadUseCase.name) {
+          return {
+            execute: async (data) => ({
+              id: "thread-abc",
+              title: data.title,
+              body: data.body,
+              owner: data.owner,
+            }),
+          };
+        }
+        if (key === ToggleCommentLikeUseCase.name) {
+          return { execute: async () => {} };
+        }
+        return { execute: async () => {} };
+      },
     };
     const server = await createServer(fakeContainer);
 

@@ -18,6 +18,12 @@ const routes = (handler) => [
     options: { auth: "forum_jwt" },
   },
   {
+    method: "PUT",
+    path: "/threads/{threadId}/comments/{commentId}/likes",
+    handler: handler.putCommentLikeHandler,
+    options: { auth: "forum_jwt" },
+  },
+  {
     method: "POST",
     path: "/threads/{threadId}/comments/{commentId}/replies",
     handler: handler.postReplyHandler,
